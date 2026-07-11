@@ -5,12 +5,15 @@ from src.api.schemas import (
     HeartDiseaseRequest,
     PredictionResponse,
 )
+from src.api.middleware import log_requests
+from prometheus_fastapi_instrumentator import Instrumentator
 
 app = FastAPI(
     title="Heart Disease Prediction API",
     version="1.0.0",
 )
-
+app.middleware("http")(log_requests)
+Instrumentator().instrument(app).expose(app)
 
 @app.get("/")
 def root():
