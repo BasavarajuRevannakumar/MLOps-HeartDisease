@@ -15,6 +15,9 @@ mlruns/
 
 # Models
 models/*.pkl
+# Keep trained artifacts required for assignment
+!models/best_model.pkl
+!models/preprocessor.pkl
 models/*.joblib
 
 # Logs
