@@ -6,6 +6,10 @@ from typing import Tuple
 
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from sklearn.compose import ColumnTransformer
+from sklearn.impute import SimpleImputer
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 # Feature groups
 NUMERICAL_FEATURES = [
@@ -79,3 +83,57 @@ def split_train_test(
         random_state=random_state,
         stratify=y,
     )
+
+def create_numerical_pipeline() -> Pipeline:
+    """
+    Create preprocessing pipeline for numerical features.
+    """
+
+    return Pipeline(
+        steps=[
+            ("imputer", SimpleImputer(strategy="median")),
+            ("scaler", StandardScaler()),
+        ]
+    )
+
+def create_categorical_pipeline() -> Pipeline:
+    """
+    Create preprocessing pipeline for categorical features.
+    """
+
+    return Pipeline(
+        steps=[
+            ("imputer", SimpleImputer(strategy="most_frequent")),
+            (
+                "encoder",
+                OneHotEncoder(
+                    handle_unknown="ignore",
+                    sparse_output=False,
+                ),
+            ),
+        ]
+    )
+
+def create_preprocessor() -> ColumnTransformer:
+    """
+    Create the complete preprocessing pipeline.
+    """
+
+    preprocessor = ColumnTransformer(
+        transformers=[
+            (
+                "num",
+                create_numerical_pipeline(),
+                NUMERICAL_FEATURES,
+            ),
+            (
+                "cat",
+                create_categorical_pipeline(),
+                CATEGORICAL_FEATURES,
+            ),
+        ]
+    )
+
+    preprocessor.set_output(transform="pandas")
+
+    return preprocessor
