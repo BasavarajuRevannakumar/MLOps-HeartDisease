@@ -8,6 +8,7 @@ import pandas as pd
 
 from src.utils.config import RAW_DATASET
 from src.utils.logger import get_logger
+from src.data.validator import validate_dataframe
 
 logger = get_logger(__name__)
 
@@ -52,9 +53,22 @@ def load_data() -> pd.DataFrame:
 
     logger.info(f"Dataset shape: {df.shape}")
 
+    validate_dataframe(df)
+    df = df.apply(pd.to_numeric)
+    df["target"] = (df["target"] > 0).astype(int)
+
+    logger.info("Missing values per column:")
+    logger.info(df.isnull().sum())
+
+    logger.info("Target distribution:")
+    logger.info(df["target"].value_counts())
+
     return df
 
 
 if __name__ == "__main__":
     dataframe = load_data()
     print(dataframe.head())
+    print(dataframe.info())
+    print(dataframe["target"].value_counts())
+
